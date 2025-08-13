@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedBot - Answer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Question</h1>
+    <p><strong>{{ question }}</strong></p>
+
+    <h1>MedBot's Answer</h1>
+    <p>{{ answer }}</p>
+
+    <a href="/">Ask Another Question</a>
+</body>
+</html>

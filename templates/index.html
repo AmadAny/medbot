@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedBot - Medical QA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>MedBot - Ask a Medical Question</h1>
+    <form method="post" action="/predict">
+        <textarea name="question" rows="4" cols="50" placeholder="e.g., What are the symptoms of diabetes?"></textarea><br><br>
+        <button type="submit">Get Answer</button>
+    </form>
+</body>
+</html>
