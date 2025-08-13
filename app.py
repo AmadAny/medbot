@@ -34,7 +34,7 @@ def home():
 def predict():
     try:
         question = request.form['question']
-        prompt = f"### Instruction:\n{question}\n\n### Response:\n"
+        prompt = f"### Instruction:\nProvide a detailed explanation.\n\n### Input:\n{question}\n\n### Response:\n"
         
         inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
         # inputs are on CPU
@@ -43,9 +43,9 @@ def predict():
         with torch.no_grad(): # Disable gradient calculation for inference
             outputs = model.generate(
                 **inputs,
-                max_new_tokens=150,
-                temperature=0.7,
-                top_p=0.9,
+                max_new_tokens=200,
+                temperature=0.6,
+                top_p=0.8,
                 do_sample=True,
                 pad_token_id=tokenizer.eos_token_id
             )
