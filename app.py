@@ -41,6 +41,7 @@ def predict():
         
         # Generate response (adjust parameters as needed)
         with torch.no_grad(): # Disable gradient calculation for inference
+            stopping_criteria = StoppingCriteriaList([StopOnFullSentence()])
             outputs = model.generate(
                 **inputs,
                 max_new_tokens=200,
@@ -52,8 +53,9 @@ def predict():
         
         full_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
         response = full_text.split("### Response:\n")[-1].strip()
+        clean_response = trim_to_last_sentence(response)
         
-        return render_template('result.html', question=question, answer=response)
+        return render_template('result.html', question=question, answer=clean_response)
     except Exception as e:
         error_message = f"An error occurred: {str(e)}"
         return render_template('result.html', question=question, answer=error_message)
