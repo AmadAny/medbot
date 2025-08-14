@@ -1,8 +1,10 @@
+# app.py
 from flask import Flask, render_template, request
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
 import os
+import re # <-- Added import for regex
 
 app = Flask(__name__)
 
@@ -26,6 +28,29 @@ model = PeftModel.from_pretrained(model, model_path)
 model.eval() # Set to evaluation mode
 print("Model loaded successfully!")
 
+# --- Add this function ---
+def trim_to_last_sentence(text):
+    """Trims the text to the last complete sentence ending with '.', '?', or '!'."""
+    # Find all sentences ending with ., ?, !
+    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+    # If there's only one or no sentence-ending punctuation, return the whole text
+    if len(sentences) <= 1:
+        return text.strip()
+    # Join all sentences except the last one (which might be incomplete)
+    trimmed_text = ' '.join(sentences[:-1])
+    # Ensure it ends with punctuation
+    if trimmed_text and trimmed_text[-1] not in '.!?':
+        # If the joined text doesn't end with punctuation, find the last one
+        last_punct_pos = max(
+            trimmed_text.rfind('.'),
+            trimmed_text.rfind('?'),
+            trimmed_text.rfind('!')
+        )
+        if last_punct_pos != -1:
+            trimmed_text = trimmed_text[:last_punct_pos + 1]
+    return trimmed_text.strip()
+# --- End of added function ---
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -41,7 +66,6 @@ def predict():
         
         # Generate response (adjust parameters as needed)
         with torch.no_grad(): # Disable gradient calculation for inference
-            stopping_criteria = StoppingCriteriaList([StopOnFullSentence()])
             outputs = model.generate(
                 **inputs,
                 max_new_tokens=200,
@@ -53,7 +77,7 @@ def predict():
         
         full_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
         response = full_text.split("### Response:\n")[-1].strip()
-        clean_response = trim_to_last_sentence(response)
+        clean_response = trim_to_last_sentence(response) # <-- This line was already using the function
         
         return render_template('result.html', question=question, answer=clean_response)
     except Exception as e:
